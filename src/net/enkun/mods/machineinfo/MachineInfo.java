@@ -51,7 +51,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 public class MachineInfo extends KeyHandler
 {
 	public static final String[] _ = {"//クソコードのかたまり"};
-	private static final String LINE_SEPARATOR = "\n";
+	private static final String LINE_SEPARATOR_CHAT = "\n";
 	private int infokey = Keyboard.KEY_F;
 	static KeyBinding keyBinding = new KeyBinding("MachineInfo", Keyboard.KEY_F);
 
@@ -84,7 +84,7 @@ public class MachineInfo extends KeyHandler
 					int id = mc.theWorld.getBlockId(x, y, z);
 					int meta = mc.theWorld.getBlockMetadata(x, y, z);
 					ItemStack drop = Block.blocksList[id].getBlockDropped(mc.theWorld, x, y, z, meta, 0).get(0);
-					s += drop.getDisplayName() + "\n";
+					s += drop.getDisplayName() + LINE_SEPARATOR_CHAT;
 					for (FluidTankInfo tank : tankInfo) {
 						NumberFormat nf = NumberFormat.getInstance();
 						String max = nf.format(tank.capacity);
@@ -92,7 +92,7 @@ public class MachineInfo extends KeyHandler
 						String name = tank.fluid == null ? "Empty" : tank.fluid.getFluid() == null ? "Empty" : tank.fluid.getFluid().getName();
 						String locname = tank.fluid == null ? "Empty" : tank.fluid.getFluid() == null ? "Empty" : tank.fluid.getFluid().getLocalizedName(); //fluid.hogehoge
 						
-						s += String.format("%s %s/%s mB\n", name, current, max);
+						s += String.format("%s %s/%s mB", name, current, max) + LINE_SEPARATOR_CHAT;
 					}
 				}
 			}
@@ -160,12 +160,14 @@ public class MachineInfo extends KeyHandler
 	{
 		Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
 		try {
-			Property prop = cfg.get(Configuration.CATEGORY_GENERAL, "InformationKey", infokey, "machine information display key");
+			Property prop = cfg.get(Configuration.CATEGORY_GENERAL, "InformationKey", infokey, ("machine information display key" + Configuration.NEW_LINE + "Key codes: http://minecraft.gamepedia.com/Key_Codes"));
 			infokey = prop.getInt();
 		} catch (Exception e) {
 			FMLLog.log(Level.SEVERE, e, "Configuration Error");
 		} finally {
-			cfg.save();
+			if (cfg.hasChanged()) {
+				cfg.save();
+			}
 		}
 	}
 	
